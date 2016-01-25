@@ -22,11 +22,12 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network 'forwarded_port', guest: 6379, host: 16_379
+  config.vm.network 'forwarded_port', guest: 6379, host: 6379
+  config.vm.network 'forwarded_port', guest: 27_017, host: 27_017
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network 'private_network', ip: '192.168.33.10'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -60,24 +61,6 @@ Vagrant.configure(2) do |config|
   #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
   # end
 
-  config.vm.provision "shell", inline: <<-SHELL
-    wget -q http://download.redis.io/releases/redis-stable.tar.gz
-    tar xzf redis-stable.tar.gz > /dev/null 2>&1
-    cd redis-stable/
-    make > /dev/null 2>&1
-    sudo make install > /dev/null 2>&1
-    sudo echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf
-    sudo sysctl vm.overcommit_memory=1
-    sudo echo never > /sys/kernel/mm/transparent_hugepage/enabled
-    sudo echo '512' > /proc/sys/net/core/somaxconn
-    sudo mkdir -p /etc/redis
-    sudo mkdir -p /var/log
-    sudo mkdir -p /var/lib/redis
-    sudo cp /shared_data/redis /etc/init.d/redis
-    sudo chmod +x /etc/init.d/redis
-    sudo update-rc.d redis defaults
-    sudo cp /shared_data/redis-server.conf /etc/redis/redis-server.conf
-    sudo /etc/init.d/redis restart
-  SHELL
-  # SHELL
+  config.vm.provision 'shell', path: 'setup_scripts/redis.sh'
+  config.vm.provision 'shell', path: 'setup_scripts/mongodb.sh'
 end
