@@ -1,5 +1,7 @@
 # Redis Basics
 
+[docs](http://redis.io/commands#string)
+
 ## key -> value
 
 ```
